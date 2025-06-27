@@ -15,22 +15,23 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1")
-@RequiredArgsConstructor
+
 public class UserController {
 
     private final CreateUserCase createUserCase;
     private final UserRequestMapper userRequestMapper;
     private final UserResponseMapper userResponseMapper;
-    private final JwtUtil jwt;
 
+    public UserController(CreateUserCase createUserCase, UserRequestMapper userRequestMapper, UserResponseMapper userResponseMapper, JwtUtil jwt) {
+        this.createUserCase = createUserCase;
+        this.userRequestMapper = userRequestMapper;
+        this.userResponseMapper = userResponseMapper;
 
-
-
+    }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> newUser(@RequestBody @Valid SignupRequest signupRequest) {
         AppUser appUser = createUserCase.execute(userRequestMapper.requestToDomain(signupRequest));
-        jwt.generateToken(appUser);
         UserResponse response = userResponseMapper.domainToResponse(appUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -6,27 +6,28 @@ import com.dev.arthur.autoprime.infrastructure.mapper.UserEntityMapper;
 import com.dev.arthur.autoprime.infrastructure.persistence.UserEntity;
 import com.dev.arthur.autoprime.infrastructure.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class UserRepositoryGateway implements UserGateway {
 
-    private UserRepository userRepository;
-    private UserEntityMapper userEntityMapper;
+    private final UserRepository userRepository;
+    private final UserEntityMapper userEntityMapper;
 
     @Override
     public AppUser saveUser(AppUser appUser) {
-        AppUser user = new AppUser(
-                appUser.id(),
-                appUser.name(),
-                appUser.email(),
-                appUser.password(),
-                appUser.userType(),
-                appUser.gender()
-        );
+        UserEntity entity = userEntityMapper.domainToEntity(appUser);
+        UserEntity saved = userRepository.save(entity);
+        return userEntityMapper.entityToDomain(saved);
+    }
 
-        UserEntity save = userEntityMapper.domainToEntity(user);
-        return userEntityMapper.entityToDomain(save);
+    @Override
+    public AppUser findUserByEmail(String email) {
+        Optional<UserEntity> userFound = userRepository.findByEmail(email);
+        return userEntityMapper.entityToDomain(userFound.orElse(null));
     }
 }

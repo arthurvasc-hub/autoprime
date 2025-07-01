@@ -5,4 +5,6 @@ import com.dev.arthur.autoprime.domain.entities.AppUser;
 
 public interface UserGateway {
     public AppUser saveUser (AppUser user);
+
+    public AppUser findUserByEmail(String email);
 }
